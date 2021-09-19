@@ -1,0 +1,80 @@
+---
+title: "Anish Ralph Rodrigues Task1"
+output: html_notebook
+#Prediction using Supervised ML
+#Predict the percentage of a student based on the number of study hours
+---
+
+```{r}
+#importing relevant libraries
+library(dplyr)
+library(graphics)
+library(caTools)
+library(Metrics)
+
+#importing the dataset from the given link
+df <- read.csv("https://raw.githubusercontent.com/AdiPersonalWorks/Random/master/student_scores%20-%20student_scores.csv")
+
+print("Data imported")
+
+head(df)
+```
+
+
+```{r}
+#plotting the current data
+plot(df, main="Basic Data Plot", xlab="Hours Studied", ylab="Marks Scored", panel.first = grid())
+
+```
+
+```{r}
+#splitting the dataframe into training and testing sets (4:1)
+df$split = sample.split(df$Scores, SplitRatio=0.8)
+train = subset(df, df$split == TRUE)
+test = subset(df, df$split == FALSE)
+head(df)
+head(test)
+head(train)
+```
+
+```{r}
+#creating the regression model
+Model <- lm(Hours ~ Scores, data = df) 
+summary(Model)
+```
+
+```{r}
+# Build the model on training data
+lmMod <- lm(Scores ~ Hours, data=train)  # build the model
+scoresPred <- predict(lmMod, test)  # predict scores
+summary(lmMod)
+```
+
+
+
+
+
+```{r}
+#comparing real vs predicted values
+actuals_preds <- data.frame(cbind(Hours=test$Hours, Actual_Scores=test$Scores, Predicted_Score=scoresPred))  # make actuals_predicteds dataframe.
+correlation_accuracy <- cor(actuals_preds)  #corelation accuracy
+head(actuals_preds)
+```
+
+```{r}
+# MAPE Calculation
+mape <- mean(abs((actuals_preds$Predicted_Score - actuals_preds$Actual_Scores))/actuals_preds$Actual_Scores)  
+sprintf("mean absolute percentage error is %1.2f%%", 100*mape)
+
+```
+
+```{r}
+#predicting scores with Custom Input
+new.Hours <- data.frame(Hours=c(9.5, 10.5))
+predict(lmMod, new.Hours)
+```
+
+```{r}
+rm()
+```
+
